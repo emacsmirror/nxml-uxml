@@ -49,9 +49,10 @@ not allowed in MicroXML."
   (when (and nxml-uxml-mode (not (eq major-mode 'nxml-mode)))
     (nxml-uxml-mode -1)
     (error "nxml-uxml-mode can only be used inside nXML"))
-  ;; I haven't found a better way than this to force nXML to recheck
-  ;; the whole document for errors:
-  (rng-after-change-function (point-min) (point-max) (point-max)))
+  (when (eq major-mode 'nxml-mode)
+    ;; I haven't found a better way than this to force nXML to recheck
+    ;; the whole document for errors:
+    (rng-after-change-function (point-min) (point-max) (point-max))))
 
 (defvar-local nxml-uxml-allow-newlines-in-attributes nil
   "Whether to allow newlines in attribute values in MicroXML. The
