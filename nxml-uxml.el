@@ -3,6 +3,7 @@
 ;;; Author: Daphne Preston-Kendal
 ;;; URL: https://gitlab.com/dpk/nxml-uxml
 ;;; Keywords: languages, XML, MicroXML
+;;; Package-Requires: ((emacs "25"))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -62,7 +63,10 @@ processing tools will treat them differently to conformant
 MicroXML parsers.")
 
 (defun uxmltok-disallow-in-prolog (prolog)
-  "Disallow the XML prolog."
+  "Disallow the XML prolog.
+
+Argument PROLOG is returned unchanged (this is advice for
+`xmltok-forward-prolog')."
   (when nxml-uxml-mode
     (with-demoted-errors
         (dolist (item prolog)
@@ -85,7 +89,7 @@ MicroXML parsers.")
 (advice-add 'xmltok-forward-prolog :filter-return #'uxmltok-disallow-in-prolog)
 
 (defun uxmltok-disallow-gts (start end)
-  "Disallow the raw character > between start and end."
+  "Disallow the raw character > between START and END."
   (when (and start end)
     (save-excursion
       (goto-char start)
@@ -94,7 +98,7 @@ MicroXML parsers.")
                           (1- (point)) (point))))))
 
 (defun uxmltok-disallow-newlines (start end)
-  "Disallow newline characters between start and end."
+  "Disallow newline characters between START and END."
   (when (and start end)
     (save-excursion
       (goto-char start)
@@ -105,8 +109,10 @@ MicroXML parsers.")
         (end-of-line)))))
 
 (defun uxmltok-disallow-in-content (token)
-  "Disallow things that aren't allowed in MicroXML in the content
-of documents."
+  "Disallow things that aren't allowed in MicroXML content.
+
+Argument TOKEN is returned unchanged (this advice for
+`xmltok-forward')."
   (when nxml-uxml-mode
     (with-demoted-errors
         (cond ((eq xmltok-type 'start-tag)
