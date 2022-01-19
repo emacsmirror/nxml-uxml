@@ -1,0 +1,31 @@
+* MicroXML for nXML
+
+[[https://dvcs.w3.org/hg/microxml/raw-file/tip/spec/microxml.html][MicroXML]] is a delightful tiny subset of XML, removing everything that
+makes XML a nightmare to deal with in practice. ~nxml-uxml-mode~ is a
+minor mode for Emacs that slightly modifies the XML parser of
+~nxml-mode~ to forbid most (though, at present, not quite all)
+constructs which are allowed in XML 1.0 but disallowed in MicroXML.
+
+** Issues
+
+- Perhaps ~nxml-uxml-mode~ should be a major mode derived from
+  ~nxml-mode~, rather than a minor mode.
+- ~nxml-uxml-mode~ will not do anything at present to stop you using
+  a schema which allows or requires things, like namespaced elements,
+  which aren’t possible in MicroXML. This is the highest-priority
+  issue at the moment.
+- Control characters and noncharacters allowed in XML 1.0 but
+  disallowed by MicroXML are not forbidden. According to the docs, the
+  base nXML Mode also fails to disallow certain characters not allowed
+  by XML 1.0, so this is really an extension of that bug. Both are
+  hard to fix satisfactorily because they have to be kept up to date
+  with the Unicode standard, which changes every year.
+- The only allowed character encoding for MicroXML documents is UTF-8,
+  but ~nxml-uxml-mode~ does not check what encoding is being used to
+  save the current buffer.
+- This has only been informally tested. It might break actually the nXML
+  parser, which is apparently quite hard to fix without restarting
+  Emacs, but hopefully not since all the changed functions are now
+  wrapped in ~with-demoted-errors~ — so in the worst case, it will
+  (noisily) fail to mark a disallowed construct, but parsing will
+  still continue, as in normal nXML mode.
