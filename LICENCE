@@ -1,4 +1,7 @@
+SPDX-License-Identifier: GPL-3.0-or-later
+
 This package is distributed under the GNU General Public Licence
 version 3 or later. These are the same terms as GNU Emacs itself.
 
-You can read these terms by typing C-h C-c (describe-copying).
+You can read these terms by typing C-h C-c (describe-copying) within
+Emacs.
