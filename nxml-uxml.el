@@ -48,10 +48,10 @@ not allowed in MicroXML."
   ;;
   ;; TODO: Disallow encodings other than UTF-8
 
-  :lighter "µXML"
+  :lighter " µXML"
   (when (and nxml-uxml-mode (not (eq major-mode 'nxml-mode)))
     (nxml-uxml-mode -1)
-    (error "nxml-uxml-mode can only be used inside nXML"))
+    (error "`nxml-uxml-mode' can only be used inside nXML"))
   (when (eq major-mode 'nxml-mode)
     ;; I haven't found a better way than this to force nXML to recheck
     ;; the whole document for errors:
