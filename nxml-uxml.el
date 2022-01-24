@@ -35,6 +35,8 @@
 ;;
 ;;; Code:
 
+(require 'nxml-mode)
+
 ;;;###autoload
 (define-minor-mode nxml-uxml-mode
   "Modifies the nXML mode parser to reject constructs that are
