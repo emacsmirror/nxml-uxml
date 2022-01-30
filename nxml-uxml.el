@@ -65,7 +65,7 @@ they're technically allowed in MicroXML, because conformant XML
 processing tools will treat them differently to conformant
 MicroXML parsers.")
 
-(defun uxmltok-disallow-in-prolog (prolog)
+(defun nxml-uxml-disallow-in-prolog (prolog)
   "Disallow the XML prolog.
 
 Argument PROLOG is returned unchanged (this is advice for
@@ -89,9 +89,10 @@ Argument PROLOG is returned unchanged (this is advice for
                    (xmltok-add-error "Processing instruction not allowed in MicroXML"
                                      start end)))))))
   prolog)
-(advice-add 'xmltok-forward-prolog :filter-return #'uxmltok-disallow-in-prolog)
+(advice-add 'xmltok-forward-prolog :filter-return #'nxml-uxml-disallow-in-prolog)
+;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
 
-(defun uxmltok-disallow-gts (start end)
+(defun nxml-uxml-disallow-gts (start end)
   "Disallow the raw character > between START and END."
   (when (and start end)
     (save-excursion
@@ -100,7 +101,7 @@ Argument PROLOG is returned unchanged (this is advice for
         (xmltok-add-error "`>' that is not markup must be entered as `&gt;'"
                           (1- (point)) (point))))))
 
-(defun uxmltok-disallow-newlines (start end)
+(defun nxml-uxml-disallow-newlines (start end)
   "Disallow newline characters between START and END."
   (when (and start end)
     (save-excursion
@@ -111,7 +112,7 @@ Argument PROLOG is returned unchanged (this is advice for
         (forward-line)
         (end-of-line)))))
 
-(defun uxmltok-disallow-in-content (token)
+(defun nxml-uxml-disallow-in-content (token)
   "Disallow things that aren't allowed in MicroXML content.
 
 Argument TOKEN is returned unchanged (this advice for
@@ -129,11 +130,11 @@ Argument TOKEN is returned unchanged (this advice for
                        ((string= (buffer-substring (aref attr 0) (aref attr 2))
                                  "xmlns")
                         (xmltok-add-error "Namespaces are not allowed in MicroXML")))
-                 (uxmltok-disallow-gts (aref attr 3) (aref attr 4))
+                 (nxml-uxml-disallow-gts (aref attr 3) (aref attr 4))
                  (if (not nxml-uxml-allow-newlines-in-attributes)
-                     (uxmltok-disallow-newlines (aref attr 3) (aref attr 4)))))
+                     (nxml-uxml-disallow-newlines (aref attr 3) (aref attr 4)))))
               ((eq xmltok-type 'data)
-               (uxmltok-disallow-gts xmltok-start (point)))
+               (nxml-uxml-disallow-gts xmltok-start (point)))
               ((eq xmltok-type 'cdata-section)
                (xmltok-add-error "CDATA sections are not allowed in MicroXML"
                                  xmltok-start))
@@ -153,8 +154,8 @@ Argument TOKEN is returned unchanged (this advice for
                    (if (not (looking-at "&\\(amp\\|lt\\|gt\\|quot\\|apos\\);"))
                        (xmltok-add-error "Entity reference not allowed in MicroXML" xmltok-start end))))))))
   token)
-(advice-add 'xmltok-forward :filter-return #'uxmltok-disallow-in-content)
-;; (advice-remove 'xmltok-foward #'uxmltok-disallow-in-content)
+(advice-add 'xmltok-forward :filter-return #'nxml-uxml-disallow-in-content)
+;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
 
 (provide 'nxml-uxml)
 
