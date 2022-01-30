@@ -1,5 +1,6 @@
 ;;; nxml-uxml.el --- MicroXML support for nXML -*- lexical-binding: t -*-
 ;;
+;;; Version: 0.0
 ;;; Author: Daphne Preston-Kendal
 ;;; URL: https://gitlab.com/dpk/nxml-uxml
 ;;; Keywords: languages, XML, MicroXML
