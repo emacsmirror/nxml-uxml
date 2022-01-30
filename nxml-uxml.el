@@ -54,6 +54,12 @@ not allowed in MicroXML."
     (nxml-uxml-mode -1)
     (error "`nxml-uxml-mode' can only be used inside nXML"))
   (when (eq major-mode 'nxml-mode)
+    (advice-add 'xmltok-forward-prolog :filter-return #'nxml-uxml-disallow-in-prolog)
+    (advice-add 'xmltok-forward :filter-return #'nxml-uxml-disallow-in-content)
+    ;; To disable:
+    ;; (advice-remove 'xmltok-forward-prolog #'nxml-uxml-disallow-in-prolog)
+    ;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
+
     ;; I haven't found a better way than this to force nXML to recheck
     ;; the whole document for errors:
     (rng-after-change-function (point-min) (point-max) (point-max))))
@@ -89,8 +95,6 @@ Argument PROLOG is returned unchanged (this is advice for
                    (xmltok-add-error "Processing instruction not allowed in MicroXML"
                                      start end)))))))
   prolog)
-(advice-add 'xmltok-forward-prolog :filter-return #'nxml-uxml-disallow-in-prolog)
-;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
 
 (defun nxml-uxml-disallow-gts (start end)
   "Disallow the raw character > between START and END."
@@ -154,8 +158,6 @@ Argument TOKEN is returned unchanged (this advice for
                    (if (not (looking-at "&\\(amp\\|lt\\|gt\\|quot\\|apos\\);"))
                        (xmltok-add-error "Entity reference not allowed in MicroXML" xmltok-start end))))))))
   token)
-(advice-add 'xmltok-forward :filter-return #'nxml-uxml-disallow-in-content)
-;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
 
 (provide 'nxml-uxml)
 
