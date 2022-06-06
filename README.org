@@ -2,14 +2,12 @@
 
 [[https://dvcs.w3.org/hg/microxml/raw-file/tip/spec/microxml.html][MicroXML]] is a delightful tiny subset of XML, removing everything that
 makes XML a nightmare to deal with in practice. ~nxml-uxml-mode~ is a
-minor mode for Emacs that slightly modifies the XML parser of
+major mode for Emacs that slightly modifies the XML parser of
 ~nxml-mode~ to forbid most (though, at present, not quite all)
 constructs which are allowed in XML 1.0 but disallowed in MicroXML.
 
 ** Issues
 
-- Perhaps ~nxml-uxml-mode~ should be a major mode derived from
-  ~nxml-mode~, rather than a minor mode.
 - ~nxml-uxml-mode~ will not do anything at present to stop you using
   a schema which allows or requires things, like namespaced elements,
   which aren’t possible in MicroXML. This is the highest-priority

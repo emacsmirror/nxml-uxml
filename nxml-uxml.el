@@ -29,7 +29,7 @@
 ;;
 ;;   MicroXML is a delightful tiny subset of XML, removing everything
 ;;   that makes XML a nightmare to deal with in practice.
-;;   nxml-uxml-mode is a minor mode for Emacs that slightly modifies
+;;   nxml-uxml-mode is a major mode for Emacs that slightly modifies
 ;;   the XML parser of nxml-mode to forbid most (though, at present,
 ;;   not quite all) constructs which are allowed in XML 1.0 but
 ;;   disallowed in MicroXML.
@@ -39,34 +39,38 @@
 (require 'nxml-mode)
 
 ;;;###autoload
-(define-minor-mode nxml-uxml-mode
-  "Modifies the nXML mode parser to reject constructs that are
-not allowed in MicroXML."
+(define-derived-mode nxml-uxml-mode nxml-mode "nµXML"
+  "Major mode for editing MicroXML.
+
+Derived from and in most respects identical to nXML mode, but
+with a parser that rejects any constructs invalid in nXML."
   ;; TODO: Check the RNC file to make sure it defines a
   ;; MicroXML-compatible schema
   ;;
   ;; TODO: Disallow non-characters and control characters
   ;;
   ;; TODO: Disallow encodings other than UTF-8
+  (setq-local nxml-uxml-restrictions-p t)
+  (advice-add 'xmltok-forward-prolog :filter-return #'nxml-uxml-disallow-in-prolog)
+  (advice-add 'xmltok-forward :filter-return #'nxml-uxml-disallow-in-content)
+  ;; To disable:
+  ;; (advice-remove 'xmltok-forward-prolog #'nxml-uxml-disallow-in-prolog)
+  ;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
+  
+  ;; I haven't found a better way than this to force nXML to (re)check
+  ;; the whole document for errors:
+  (rng-after-change-function (point-min) (point-max) (point-max)))
 
-  :lighter " µXML"
-  (when (and nxml-uxml-mode (not (eq major-mode 'nxml-mode)))
-    (nxml-uxml-mode -1)
-    (error "`nxml-uxml-mode' can only be used inside nXML"))
-  (when (eq major-mode 'nxml-mode)
-    (advice-add 'xmltok-forward-prolog :filter-return #'nxml-uxml-disallow-in-prolog)
-    (advice-add 'xmltok-forward :filter-return #'nxml-uxml-disallow-in-content)
-    ;; To disable:
-    ;; (advice-remove 'xmltok-forward-prolog #'nxml-uxml-disallow-in-prolog)
-    ;; (advice-remove 'xmltok-forward #'nxml-uxml-disallow-in-content)
+(defvar-local nxml-uxml-restrictions-p nil
+  "Whether MicroXML restrictions are in effect in nXML mode.
 
-    ;; I haven't found a better way than this to force nXML to recheck
-    ;; the whole document for errors:
-    (rng-after-change-function (point-min) (point-max) (point-max))))
+This variable is set automatically by `nxml-uxml-mode'; there
+should be no need to set it manually.")
 
 (defvar-local nxml-uxml-allow-newlines-in-attributes nil
-  "Whether to allow newlines in attribute values in MicroXML. The
-default is nil out of an abundance of caution, even though
+  "Whether to allow newlines in attribute values in MicroXML.
+
+The default is nil out of an abundance of caution, even though
 they're technically allowed in MicroXML, because conformant XML
 processing tools will treat them differently to conformant
 MicroXML parsers.")
@@ -76,7 +80,7 @@ MicroXML parsers.")
 
 Argument PROLOG is returned unchanged (this is advice for
 `xmltok-forward-prolog')."
-  (when nxml-uxml-mode
+  (when nxml-uxml-restrictions-p
     (with-demoted-errors
         (dolist (item prolog)
           (let ((type (aref item 0))
@@ -121,7 +125,7 @@ Argument PROLOG is returned unchanged (this is advice for
 
 Argument TOKEN is returned unchanged (this advice for
 `xmltok-forward')."
-  (when nxml-uxml-mode
+  (when nxml-uxml-restrictions-p
     (with-demoted-errors
         (cond ((eq xmltok-type 'start-tag)
                (if xmltok-name-colon
